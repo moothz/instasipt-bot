@@ -1,0 +1,14 @@
+{
+  "alpr": false,
+  "instagram": {
+    "cookie": "ig_did=78.....8d\"",
+    "userAgent": "Mozilla/5.0 ...",
+    "xIgAppId": "936619743392459"
+  },
+  "telegram": {
+    "pollingInterval": 3000,
+    "respostaInicial": "Olá! Este é um bot <i>não oficial</i> que busca posts na página <b><a href='https://www.instagram.com/instasipt/'>Insta Si PT</a></b> usando a tag <i>#siptxxxyyyy</i>.\n\nMe envie a <b>placa</b> que deseja pesquisar e farei uma busca! Também tento identificar placas em fotos, mas sou meio burrinho ainda.\n🚗💨",
+    "token": "1234567890:AbCdEFG--123IMNWEIjs981abCBDe231234",
+    "offset": 0
+  }
+}
