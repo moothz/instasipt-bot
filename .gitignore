@@ -126,6 +126,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 temp/
+dump/
 configs.json
 nssm_criar.bat
 testexlsx.js
