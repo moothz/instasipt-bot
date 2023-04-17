@@ -264,14 +264,15 @@ setInterval(async () => {
 		if(msg.text.includes("/start")){
 			sendMessage(telegram.respostaInicial, msg.id, msg.chatId);
 		} else {
-			if(isOnCooldown(msg.from)){
-				sendMessage(`🛑 <b>Atenção</b>: É necessário aguardar <i>${configs.tempoCooldown/1000}s</i> entre consultas.`,msg.id, msg.chatId);
-				console.log(`[cooldown] ${msg.from} em cooldown`);
-			} else {
-				// Verifica se tem placa na mensagem recebida
-				const placas = getPlacasFromTexto(msg.text);
-				if(placas.length > 0){
-					console.log(`[getPlacasFromTexto] Encontrada ${placas.length}: ${placas.join(",").toUpperCase()}`);
+			// Verifica se tem placa na mensagem recebida
+			const placas = getPlacasFromTexto(msg.text);
+			console.log(`[getPlacasFromTexto] Encontrada ${placas.length}: ${placas.join(",").toUpperCase()}`);
+			
+			if(placas.length > 0){
+				if(isOnCooldown(msg.from)){
+					sendMessage(`🛑 <b>Atenção</b>: É necessário aguardar <i>${configs.tempoCooldown/1000}s</i> entre consultas.`,msg.id, msg.chatId);
+					console.log(`[cooldown] ${msg.from} em cooldown`);
+				} else {
 					let nadaEncontrado = true;
 					for(let placa of placas){
 						if(nadaEncontrado){	// só envia 1x se achar 2x a mesma placa
