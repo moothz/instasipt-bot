@@ -237,27 +237,29 @@ setInterval(async () => {
 				console.log(`[getPlacasFromTexto] Encontrada ${placas.length}: ${placas.join(",").toUpperCase()}`);
 				let nadaEncontrado = true;
 				for(let placa of placas){
-					const resultadosInstagram = fetchPostsInstagramByTag(`sipt${placa}`);
-					const resultadoExcel = await getDadosFromExcel(placa);
-					const headerResposta = `🔎 <b>Resultado da placa <i>${placa.toUpperCase()}</i></b>`;
+					if(nadaEncontrado){	// só envia 1x se achar 2x a mesma placa
+						const resultadosInstagram = fetchPostsInstagramByTag(`sipt${placa}`);
+						const resultadoExcel = await getDadosFromExcel(placa);
+						const headerResposta = `🔎 <b>Resultado da placa <i>${placa.toUpperCase()}</i></b>`;
 
-					let textoExcel = "";
-					if(resultadoExcel){
-						textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
-					}
+						let textoExcel = "";
+						if(resultadoExcel){
+							textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
+						}
 
-					if(resultadosInstagram.length > 0){
-						const res = resultadosInstagram[0];
-						console.log(res);
-						const textoResposta = `${headerResposta}\n\n${res.text}\n\n${textoExcel}\n<i>👍 ${res.likes} 💬 ${res.comments}\n🌐 <a href='${res.link}'>Link do post</a></i>`;
-						sendPhoto(textoResposta, res.image, msg.id, msg.chatId);
-						nadaEncontrado = false;
-					} else 
-					if(resultadoExcel){
-						// Se não achou post no insta, manda só que tem sinistro
-						const textoResposta = `${headerResposta}\n\n${textoExcel}`;
-						sendMessage(textoResposta,msg.id, msg.chatId);
-						nadaEncontrado = false;
+						if(resultadosInstagram.length > 0){
+							const res = resultadosInstagram[0];
+							console.log(res);
+							const textoResposta = `${headerResposta}\n\n${res.text}\n\n${textoExcel}\n<i>👍 ${res.likes} 💬 ${res.comments}\n🌐 <a href='${res.link}'>Link do post</a></i>`;
+							sendPhoto(textoResposta, res.image, msg.id, msg.chatId);
+							nadaEncontrado = false;
+						} else 
+						if(resultadoExcel){
+							// Se não achou post no insta, manda só que tem sinistro
+							const textoResposta = `${headerResposta}\n\n${textoExcel}`;
+							sendMessage(textoResposta,msg.id, msg.chatId);
+							nadaEncontrado = false;
+						}
 					}
 				}
 
