@@ -4,10 +4,42 @@ const exec = require('sync-exec');
 const path = require('path');
 const fs = require('fs');
 
+const cooldown = [];
 const cache = JSON.parse(fs.readFileSync("cache.json", "utf8"));
 const configs = JSON.parse(fs.readFileSync("configs.json", "utf8"));
 const telegram = configs.telegram;
 const instagram = configs.instagram;
+
+function setCooldown(idUsuario){
+	const tsAtual = new Date().getTime();
+	const usuario = getCooldown(idUsuario);
+	usuario.ultimaMsg = tsAtual;
+}
+
+function isOnCooldown(idUsuario){
+	const tsAtual = new Date().getTime();
+	const usuario = getCooldown(idUsuario);
+	const delay = (tsAtual - usuario.ultimaMsg);
+	if(delay < configs.tempoCooldown){
+		console.log(`[isOnCooldown] ${idUsuario}: ${delay}`);
+		return true;
+	} else {
+		console.log(`[notOnCooldown] ${idUsuario}: ${delay}`);
+		return false;
+	}
+}
+
+function getCooldown(idUsuario){
+	const busca = cooldown.filter(usuario => usuario.id == idUsuario);
+	if(busca.length > 0){
+		return busca[0];
+	} else {
+		const tsAtual = new Date().getTime();
+		const novo = {id: idUsuario, ultimaMsg: 0};
+		cooldown.push(novo);
+		return novo;
+	}
+}
 
 function sendMessage(msg, replyId, chatId){
 	const payload = JSON.stringify({
@@ -125,6 +157,7 @@ function getMessages() {
 
 				msgs.push({
 					id: msgRecebida.message_id,
+					from: msgRecebida.from.id,
 					chatId: msgRecebida.chat.id,
 					user: msgRecebida.chat.id,
 					username: msgRecebida.chat.username,
@@ -231,41 +264,48 @@ setInterval(async () => {
 		if(msg.text.includes("/start")){
 			sendMessage(telegram.respostaInicial, msg.id, msg.chatId);
 		} else {
-			// Verifica se tem placa na mensagem recebida
-			const placas = getPlacasFromTexto(msg.text);
-			if(placas.length > 0){
-				console.log(`[getPlacasFromTexto] Encontrada ${placas.length}: ${placas.join(",").toUpperCase()}`);
-				let nadaEncontrado = true;
-				for(let placa of placas){
-					if(nadaEncontrado){	// só envia 1x se achar 2x a mesma placa
-						const resultadosInstagram = fetchPostsInstagramByTag(`sipt${placa}`);
-						const resultadoExcel = await getDadosFromExcel(placa);
-						const headerResposta = `🔎 <b>Resultado da placa <i>${placa.toUpperCase()}</i></b>`;
+			if(isOnCooldown(msg.from)){
+				sendMessage(`🛑 <b>Atenção</b>: É necessário aguardar <i>${configs.tempoCooldown/1000}s</i> entre consultas.`,msg.id, msg.chatId);
+				console.log(`[cooldown] ${msg.from} em cooldown`);
+			} else {
+				// Verifica se tem placa na mensagem recebida
+				const placas = getPlacasFromTexto(msg.text);
+				if(placas.length > 0){
+					console.log(`[getPlacasFromTexto] Encontrada ${placas.length}: ${placas.join(",").toUpperCase()}`);
+					let nadaEncontrado = true;
+					for(let placa of placas){
+						if(nadaEncontrado){	// só envia 1x se achar 2x a mesma placa
+							const resultadosInstagram = fetchPostsInstagramByTag(`sipt${placa}`);
+							const resultadoExcel = await getDadosFromExcel(placa);
+							const headerResposta = `🔎 <b>Resultado da placa <i>${placa.toUpperCase()}</i></b>`;
 
-						let textoExcel = "";
-						if(resultadoExcel){
-							textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
-						}
+							let textoExcel = "";
+							if(resultadoExcel){
+								textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
+							}
 
-						if(resultadosInstagram.length > 0){
-							const res = resultadosInstagram[0];
-							console.log(res);
-							const textoResposta = `${headerResposta}\n\n${res.text}\n\n${textoExcel}\n<i>👍 ${res.likes} 💬 ${res.comments}\n🌐 <a href='${res.link}'>Link do post</a></i>`;
-							sendPhoto(textoResposta, res.image, msg.id, msg.chatId);
-							nadaEncontrado = false;
-						} else 
-						if(resultadoExcel){
-							// Se não achou post no insta, manda só que tem sinistro
-							const textoResposta = `${headerResposta}\n\n${textoExcel}`;
-							sendMessage(textoResposta,msg.id, msg.chatId);
-							nadaEncontrado = false;
+							if(resultadosInstagram.length > 0){
+								const res = resultadosInstagram[0];
+								console.log(res);
+								const textoResposta = `${headerResposta}\n\n${res.text}\n\n${textoExcel}\n<i>👍 ${res.likes} 💬 ${res.comments}\n🌐 <a href='${res.link}'>Link do post</a></i>`;
+								sendPhoto(textoResposta, res.image, msg.id, msg.chatId);
+								nadaEncontrado = false;
+							} else 
+							if(resultadoExcel){
+								// Se não achou post no insta, manda só que tem sinistro
+								const textoResposta = `${headerResposta}\n\n${textoExcel}`;
+								sendMessage(textoResposta,msg.id, msg.chatId);
+								nadaEncontrado = false;
+							}
 						}
 					}
-				}
 
-				if(nadaEncontrado){
-					const headerResposta = `🔎 <b>Resultado das placas <i>${placas.join(", ").toUpperCase()}</i></b>`;
-					sendMessage(`${headerResposta}\n\n\t⚠️ Nenhum post encontrado, aguarde o admin se pronunciar!`, msg.id, msg.chatId);
+					if(nadaEncontrado){
+						const headerResposta = `🔎 <b>Resultado das placas <i>${placas.join(", ").toUpperCase()}</i></b>`;
+						sendMessage(`${headerResposta}\n\n\t⚠️ Nenhum post encontrado, aguarde o admin se pronunciar!`, msg.id, msg.chatId);
+					}
+
+					setCooldown(msg.from);
 				}
 			}
 		}

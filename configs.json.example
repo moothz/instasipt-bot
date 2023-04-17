@@ -1,4 +1,5 @@
 {
+  "tempoCooldown": 60000,
   "alpr": false,
   "instagram": {
     "cookie": "ig_did=78.....8d\"",
