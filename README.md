@@ -72,7 +72,7 @@ No windows, recomendo utilizar o [nssm](https://nssm.cc/), no Linux, vá de [sys
 
 * Windows
 
-1. Baixe o [nssm](https://nssm.cc/) e copie o arquivo `nssm.exe` pra alguma pasta que esteja no PATH (Ex.: C:\Windows\System32).
+1. Baixe o [nssm](https://nssm.cc/release/nssm-2.24.zip) e copie o arquivo `nssm.exe` pra alguma pasta que esteja no PATH (Ex.: C:\Windows\System32).
 2. Altere os comandos abaixo conforme sua pasta de instalação
 3. Abra um `terminal/cmd/powershell` e rode os comandos alterados
 ```
