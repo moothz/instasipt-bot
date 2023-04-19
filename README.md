@@ -16,6 +16,28 @@ Um arquivo `dados.xlsx` pode ser lido também que contém mais informações sob
 npm i sync-exec sync-fetch read-excel-file
 ```
 
+## ⚙️ configs.json
+```js
+{
+  "tempoCooldown": 60000,           // Tempo, em ms, entre cada busca por usuário
+  "buscarOnlineInsta": true,        // Controla o módulo que busca as hashtags no instagram
+  "usarCacheInsta": true,           // Controla a busca no arquivo cache.json
+  "tempoResetAutomatico": 1800000,  // Tempo para resetar o bot automaticamente pra evitar bugs (gambiarra windows)
+  "alpr": false,                    // Caminho para o programa alpr. ex.: C:\\Apps\\alpr.exe
+  "instagram": {
+    "cookie": "ig_did=78.....8d\"", // Config do instagram, veja abaixo como obter
+    "userAgent": "Mozilla/5.0 ...", // Config do instagram, veja abaixo como obter
+    "xIgAppId": "936619743392459"   // Config do instagram, veja abaixo como obter
+  },
+  "telegram": {
+    "pollingInterval": 3000,        // Config do instagram, veja abaixo como obter
+    "respostaInicial": "Olá!...",   // Mensagem que o bot envia quando a pessoa manda /start
+    "token": "12345:AbCdEFG...234", // Token do seu bot criado no BotFater, veja abaixo como obter
+    "offset": 0                     // Auxiliar pra saber qual foi a última msg recebida na API, não mexer
+  }
+}
+```
+
 ## 🤖 Como criar um token do bot e pegar o  token
 
 - Converse com o [@BotFather](https://t.me/BotFather)
@@ -43,3 +65,28 @@ npm i sync-exec sync-fetch read-excel-file
 É possível utilizar o [OpenALPR](https://github.com/openalpr/openalpr) para identificar placa dos carros nas fotos e pesquisar automaticamente.
 Para isso, é necessário definir a variável `alpr` no `configs.json` com o caminho para o executável do openalpr.
 Você pode treinar seu próprio modelo ou usar um pronto - para testes, recomendo o modelo treinado do [mauriciocordeiro](https://github.com/mauriciocordeiro/openalpr.br).
+
+## 👷‍♂️ Como rodar o bot como serviço
+
+No windows, recomendo utilizar o [nssm](https://nssm.cc/), no Linux, vá de [systemd](https://gist.github.com/leommoore).
+
+* Windows
+
+1. Baixe o [nssm](https://nssm.cc/) e copie o arquivo `nssm.exe` pra alguma pasta que esteja no PATH (Ex.: C:\Windows\System32).
+2. Altere os comandos abaixo conforme sua pasta de instalação
+3. Abra um `terminal/cmd/powershell` e rode os comandos alterados
+```
+nssm install siptbot "C:\Program Files\nodejs\node.exe"
+nssm set siptbot AppDirectory "C:\Users\voce\Documents\GitHub\sipt-bot"
+nssm set siptbot AppParameters index.js
+nssm set siptbot AppStdout "C:\Users\voce\Documents\GitHub\sipt-bot\siptbot.log"
+nssm set siptbot AppStderr "C:\Users\voce\Documents\GitHub\sipt-bot\siptbot-error.log"
+nssm start siptbot
+```
+
+Agora você pode controlar o bot em um `cmd` elevado (Administrador) utilizando:
+```
+nssm start siptbot
+nssm stop siptbot
+nssm restart siptbot
+```

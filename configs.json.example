@@ -1,5 +1,8 @@
 {
   "tempoCooldown": 60000,
+  "buscarOnlineInsta": true,
+  "usarCacheInsta": true,
+  "tempoResetAutomatico": 1800000,
   "alpr": false,
   "instagram": {
     "cookie": "ig_did=78.....8d\"",

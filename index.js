@@ -1,4 +1,4 @@
-const readXlsxFile = require('read-excel-file/node');
+	const readXlsxFile = require('read-excel-file/node');
 const fetch = require('sync-fetch');
 const exec = require('sync-exec');
 const path = require('path');
@@ -112,7 +112,17 @@ async function getDadosFromExcel(placa){
 		const COLUNA_SINISTRO = 7;
 		const arquivo = await readXlsxFile("dados.xlsx");
 		
-		const busca = arquivo.filter(linha => linha[COLUNA_PLACA].trim().toLowerCase() == placa.trim().toLowerCase())[0];
+		let nLinha = 0;
+		const busca = arquivo.filter(linha => {
+			nLinha++;
+			const placaBusca = linha[COLUNA_PLACA];
+			if(placaBusca){
+				return placaBusca.trim().toLowerCase() == placa.trim().toLowerCase();
+			} else {
+				console.warn(`- Linha ${nLinha} não possui uma placa válida.`);
+				return false;
+			}
+		})[0];
 
 		if(busca){
 			return {
@@ -124,7 +134,7 @@ async function getDadosFromExcel(placa){
 			return false;
 		}
 	} catch(e){
-		console.log(`[getDadosFromExcel] Erro abrindo arquivo 'dados.xlsx'`);
+		console.log(`[getDadosFromExcel] Erro pegando dado do arquivo 'dados.xlsx': `,e);
 		return false;
 	}
 }
@@ -154,7 +164,6 @@ function getMessages() {
 					console.log(`[getMessages] Encontradass: ${placasNaImg}`);
 				}
 
-
 				msgs.push({
 					id: msgRecebida.message_id,
 					from: msgRecebida.from.id,
@@ -171,7 +180,6 @@ function getMessages() {
 		});
 	}
 	return msgs;
-
 }
 
 function getPlacasFromTexto(text) {
@@ -211,11 +219,16 @@ function fetchPostsInstagramByTag(tag) {
 	try {
 		const tagFromCache = getTagFromCache(tag);
 
-		if(tagFromCache){
+		if(tagFromCache && configs.usarCacheInsta){
 			console.log(`[fetchPostsInstagramByTag] '${tag}' estava em cache.`);
 			return [tagFromCache];
-		} else {
-			console.log(`[fetchPostsInstagramByTag] '${tag}' não está no cache, buscando...`);
+		} else 
+		if(configs.buscarOnlineInsta){
+			if(configs.usarCacheInsta){
+				console.log(`[fetchPostsInstagramByTag] '${tag}' não está no cache, buscando...`);
+			} else {
+				console.log(`[fetchPostsInstagramByTag] Ignorado cache.`);
+			}
 			// Busca dado online
 			const response = fetch(url, {
 				headers: {
@@ -249,6 +262,9 @@ function fetchPostsInstagramByTag(tag) {
 				fs.writeFileSync("cache.json", JSON.stringify(cache, null, 2));
 				return items;
 			}
+		} else {
+			console.log(`[fetchPostsInstagramByTag] Ignorado busca online.`)
+			return [];
 		}
 	} catch (error) {
 		console.error(error);
@@ -314,4 +330,9 @@ setInterval(async () => {
 }, telegram.pollingInterval);
 
 console.log("SiPtBot inicializado.");
-
+if(configs.tempoResetAutomatico > 0){
+	console.log(`[SiPtBot] O bot irá reiniciar após ${configs.tempoResetAutomatico/1000} segundos.`);
+	setTimeout(() => {
+		process.exit(0);
+	}, configs.tempoResetAutomatico);
+}
