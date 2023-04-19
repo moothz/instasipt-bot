@@ -66,7 +66,7 @@ npm i sync-exec sync-fetch read-excel-file
 Para isso, é necessário definir a variável `alpr` no `configs.json` com o caminho para o executável do openalpr.
 Você pode treinar seu próprio modelo ou usar um pronto - para testes, recomendo o modelo treinado do [mauriciocordeiro](https://github.com/mauriciocordeiro/openalpr.br).
 
-## 👷‍♂️ Como rodar o bot como serviço
+## 👷‍♂️ Como rodar o bot em modo serviço
 
 No windows, recomendo utilizar o [nssm](https://nssm.cc/), no Linux, vá de [systemd](https://gist.github.com/leommoore).
 
