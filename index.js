@@ -183,10 +183,11 @@ function getMessages() {
 
 				msgs.push({
 					id: msgRecebida.message_id,
-					from: msgRecebida.from.id,
 					chatId: msgRecebida.chat.id,
-					user: msgRecebida.chat.id,
-					username: msgRecebida.chat.username,
+					chat: msgRecebida.chat.id,
+					from: msgRecebida.from.id,
+					username: msgRecebida.from.username,
+					name: msgRecebida.from.first_name,
 					text: `${msgRecebida.text} ${msgRecebida.caption}	(${placasNaImg})`
 				});
 			}
@@ -299,6 +300,9 @@ setInterval(async () => {
 			console.log(`[getPlacasFromTexto] Encontrada ${placas.length}: ${placas.join(",").toUpperCase()}`);
 			
 			if(placas.length > 0){
+
+				const local = (msg.chat === msg.from) ? "PV" : "Grupo";
+				console.log(`[siptbot] Pedido de '${msg.username}'/'${msg.name}' (${local}): ${placas.join(", ")}`);
 				if(isOnCooldown(msg.from)){
 					sendMessage(`🛑 <b>Atenção</b>: É necessário aguardar <i>${configs.tempoCooldown/1000}s</i> entre consultas.`,msg.id, msg.chatId);
 					console.log(`[cooldown] ${msg.from} em cooldown`);
