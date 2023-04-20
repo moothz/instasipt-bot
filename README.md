@@ -20,12 +20,12 @@ npm i sync-exec sync-fetch read-excel-file
 ```js
 {
   "tempoCooldown": 60000,           // Tempo, em ms, entre cada busca por usuário
-  "buscarOnlineInsta": true,        // Controla o módulo que busca as hashtags no instagram
-  "usarCacheInsta": true,           // Controla a busca no arquivo cache.json
   "tempoResetAutomatico": 1800000,  // Tempo para resetar o bot automaticamente pra evitar bugs (gambiarra windows)
   "alpr": false,                    // Caminho para o programa alpr. ex.: C:\\Apps\\alpr.exe
   "whitelistCooldown": [],          // IDs de usuários que não tem cooldown
   "instagram": {
+    "buscarOnlineInsta": false,        // Controla o módulo que busca as hashtags no instagram
+    "usarCacheInsta": true,           // Controla a busca no arquivo cache.json
     "cookie": "ig_did=78.....8d\"", // Config do instagram, veja abaixo como obter
     "userAgent": "Mozilla/5.0 ...", // Config do instagram, veja abaixo como obter
     "xIgAppId": "936619743392459"   // Config do instagram, veja abaixo como obter
