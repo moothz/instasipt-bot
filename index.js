@@ -177,7 +177,11 @@ function getMessages() {
 			if(updt.update_id >= telegram.offset){
 				telegram.offset = updt.update_id + 1;
 				offsetAtual = telegram.offset;
-				fs.writeFileSync("configs.json", JSON.stringify(configs, null, 2));
+				try{
+					fs.writeFileSync("configs.json", JSON.stringify(configs, null, 2));
+				} catch(e){
+					console.log(`[getMessages] Erro atualiazndo arquivo 'configs.json': `,e);
+				}
 			}
 		});
 	}
