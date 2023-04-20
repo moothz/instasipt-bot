@@ -186,8 +186,8 @@ function getMessages() {
 					chatId: msgRecebida.chat.id,
 					chat: msgRecebida.chat.id,
 					from: msgRecebida.from.id,
-					username: msgRecebida.from.username,
-					name: msgRecebida.from.first_name,
+					username: msgRecebida.from.username ?? "???",
+					name: msgRecebida.from.first_name ?? "???",
 					text: `${msgRecebida.text} ${msgRecebida.caption}	(${placasNaImg})`
 				});
 			}
