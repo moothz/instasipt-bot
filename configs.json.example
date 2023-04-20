@@ -1,11 +1,11 @@
 {
   "tempoCooldown": 60000,
-  "buscarOnlineInsta": true,
-  "usarCacheInsta": true,
   "tempoResetAutomatico": 1800000,
   "alpr": false,
   "whitelistCooldown": [],
   "instagram": {
+    "buscarOnlineInsta": false,
+    "usarCacheInsta": true,
     "cookie": "ig_did=78.....8d\"",
     "userAgent": "Mozilla/5.0 ...",
     "xIgAppId": "936619743392459"
