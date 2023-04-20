@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 const cooldown = [];
+
 const cache = JSON.parse(fs.readFileSync("cache.json", "utf8"));
 const configs = JSON.parse(fs.readFileSync("configs.json", "utf8"));
 const telegram = configs.telegram;
@@ -12,9 +13,13 @@ const instagram = configs.instagram;
 let offsetAtual = telegram.offset;
 
 function setCooldown(idUsuario){
-	const tsAtual = new Date().getTime();
-	const usuario = getCooldown(idUsuario);
-	usuario.ultimaMsg = tsAtual;
+	if(!configs.whitelistCooldown.includes(idUsuario)){
+		const tsAtual = new Date().getTime();
+		const usuario = getCooldown(idUsuario);
+		usuario.ultimaMsg = tsAtual;
+	} else {
+		console.log(`[setCooldown] ${idUsuario} está na whitelist.`);
+	}
 }
 
 function isOnCooldown(idUsuario){
