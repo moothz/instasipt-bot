@@ -313,7 +313,7 @@ setInterval(async () => {
 							let textoExcel = "";
 							if(resultadoExcel){
 								if(resultadoExcel.status.toLowerCase().includes("nada")){
-									textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n✅ <b>Nada consta.</b>.\n`;
+									textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n✅ <b>Nada consta.</b>\n`;
 								} else {
 									textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
 								}
