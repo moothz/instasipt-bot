@@ -149,14 +149,12 @@ function getMessages() {
 	let msgs = [];
 	const payload = JSON.stringify({offset: offsetAtual});
 	const dados = fetch(`https://api.telegram.org/bot${telegram.token}/getUpdates`, {body: payload, method: 'POST', headers: { 'Content-Type': 'application/json' }}).json();
-	console.log(`[getMessages] offsetAtual: ${offsetAtual}`);
 	if(dados.ok){
 		dados.result.forEach(async (updt) => {
 
 			if(updt.update_id >= telegram.offset){
 				telegram.offset = updt.update_id + 1;
 				offsetAtual = updt.update_id + 1;
-				console.log(`[getMessages] Novo offsetAtual: ${offsetAtual}`);
 				try{
 					fs.writeFileSync("configs.json", JSON.stringify(configs, null, 2));
 				} catch(e){
