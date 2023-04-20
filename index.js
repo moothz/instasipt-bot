@@ -9,6 +9,7 @@ const cache = JSON.parse(fs.readFileSync("cache.json", "utf8"));
 const configs = JSON.parse(fs.readFileSync("configs.json", "utf8"));
 const telegram = configs.telegram;
 const instagram = configs.instagram;
+let offsetAtual = telegram.offset;
 
 function setCooldown(idUsuario){
 	const tsAtual = new Date().getTime();
@@ -141,7 +142,7 @@ async function getDadosFromExcel(placa){
 
 function getMessages() {
 	let msgs = [];
-	const payload = JSON.stringify({offset: telegram.offset});
+	const payload = JSON.stringify({offset: offsetAtual});
 	const dados = fetch(`https://api.telegram.org/bot${telegram.token}/getUpdates`, {body: payload, method: 'POST', headers: { 'Content-Type': 'application/json' }}).json();
 	if(dados.ok){
 		dados.result.forEach(async (updt) => {
@@ -175,6 +176,7 @@ function getMessages() {
 			}
 			if(updt.update_id >= telegram.offset){
 				telegram.offset = updt.update_id + 1;
+				offsetAtual = telegram.offset;
 				fs.writeFileSync("configs.json", JSON.stringify(configs, null, 2));
 			}
 		});
