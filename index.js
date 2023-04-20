@@ -312,7 +312,11 @@ setInterval(async () => {
 
 							let textoExcel = "";
 							if(resultadoExcel){
-								textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
+								if(resultadoExcel.status.toLowerCase().includes("nada")){
+									textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n✅ <b>Nada consta.</b>.\n`;
+								} else {
+									textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
+								}
 							}
 
 							if(resultadosInstagram.length > 0){
@@ -333,7 +337,7 @@ setInterval(async () => {
 
 					if(nadaEncontrado){
 						const headerResposta = `🔎 <b>Resultado das placas <i>${placas.join(", ").toUpperCase()}</i></b>`;
-						sendMessage(`${headerResposta}\n\n\t⚠️ Nenhum post encontrado, aguarde o admin se pronunciar!`, msg.id, msg.chatId);
+						sendMessage(`${headerResposta}\n\n\t⚠️ Esta placa não parece ser de um <i>Civic Si 07-11</i> 🤔`, msg.id, msg.chatId);
 					}
 
 					setCooldown(msg.from);
