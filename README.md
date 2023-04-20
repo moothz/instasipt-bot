@@ -39,7 +39,7 @@ npm i sync-exec sync-fetch read-excel-file
 }
 ```
 
-## 🤖 Como criar um token do bot e pegar o  token
+## 🤖 Como criar um bot no Telegram e pegar o token
 
 - Converse com o [@BotFather](https://t.me/BotFather)
     1. /newbot
