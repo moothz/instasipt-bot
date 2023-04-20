@@ -74,13 +74,13 @@ No windows, recomendo utilizar o [nssm](https://nssm.cc/), no Linux, vá de [sys
 
 1. Baixe o [nssm](https://nssm.cc/release/nssm-2.24.zip) e copie o arquivo `nssm.exe` pra alguma pasta que esteja no PATH (Ex.: C:\Windows\System32).
 2. Altere os comandos abaixo conforme sua pasta de instalação
-3. Abra um `terminal/cmd/powershell` e rode os comandos alterados
+3. Abra um `terminal/cmd/powershell` como *administrador* e rode os comandos alterados
 ```
 nssm install siptbot "C:\Program Files\nodejs\node.exe"
-nssm set siptbot AppDirectory "C:\Users\voce\Documents\GitHub\sipt-bot"
+nssm set siptbot AppDirectory "C:\Users\voce\Documents\GitHub\instasipt-bot"
 nssm set siptbot AppParameters index.js
-nssm set siptbot AppStdout "C:\Users\voce\Documents\GitHub\sipt-bot\siptbot.log"
-nssm set siptbot AppStderr "C:\Users\voce\Documents\GitHub\sipt-bot\siptbot-error.log"
+nssm set siptbot AppStdout "C:\Users\voce\Documents\GitHub\instasipt-bot\siptbot.log"
+nssm set siptbot AppStderr "C:\Users\voce\Documents\GitHub\instasipt-bot\siptbot-error.log"
 nssm start siptbot
 ```
 
