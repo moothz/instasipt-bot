@@ -147,6 +147,18 @@ function getMessages() {
 	console.log(`[getMessages] offsetAtual: ${offsetAtual}`);
 	if(dados.ok){
 		dados.result.forEach(async (updt) => {
+
+			if(updt.update_id >= telegram.offset){
+				telegram.offset = updt.update_id + 1;
+				offsetAtual = updt.update_id + 1;
+				console.log(`[getMessages] Novo offsetAtual: ${offsetAtual}`);
+				try{
+					fs.writeFileSync("configs.json", JSON.stringify(configs, null, 2));
+				} catch(e){
+					console.log(`[getMessages] Erro atualiazndo arquivo 'configs.json': `,e);
+				}
+			}
+
 			if(updt.message){
 				const msgRecebida = updt.message;
 
@@ -163,7 +175,7 @@ function getMessages() {
 					const resultadoALPR = execALPR(arquivoImg);
 					const placas = getPlacasFromTexto(resultadoALPR);
 					placasNaImg = placas.join(", ");
-					console.log(`[getMessages] Encontradass: ${placasNaImg}`);
+					console.log(`[getMessages] Encontradas: ${placasNaImg}`);
 				}
 
 				msgs.push({
@@ -175,16 +187,7 @@ function getMessages() {
 					text: `${msgRecebida.text} ${msgRecebida.caption}	(${placasNaImg})`
 				});
 			}
-			if(updt.update_id >= telegram.offset){
-				telegram.offset = updt.update_id + 1;
-				offsetAtual = updt.update_id + 1;
-				console.log(`[getMessages] Novo offsetAtual: ${offsetAtual}`);
-				try{
-					fs.writeFileSync("configs.json", JSON.stringify(configs, null, 2));
-				} catch(e){
-					console.log(`[getMessages] Erro atualiazndo arquivo 'configs.json': `,e);
-				}
-			}
+
 		});
 	}
 	return msgs;
