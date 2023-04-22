@@ -11,7 +11,7 @@ function getTagFromCache(tag){
 }
 
 function fetchPostsInstagramByTag(tag) {
-	console.log(`[fetchPostsInstagramByTag] Buscando tag '${tag}'`);
+	console.log(`\t[fetchPostsInstagramByTag] Buscando tag '${tag}'`);
 	tag = tag.toLowerCase();
 	const url = `https://www.instagram.com/api/v1/tags/web_info/?tag_name=${tag}`;
 
@@ -19,14 +19,14 @@ function fetchPostsInstagramByTag(tag) {
 		const tagFromCache = getTagFromCache(tag);
 
 		if(tagFromCache && instagram.usarCacheInsta){
-			console.log(`[fetchPostsInstagramByTag] '${tag}' estava em cache.`);
+			console.log(`\t[fetchPostsInstagramByTag] '${tag}' estava em cache.`);
 			return [tagFromCache];
 		} else 
 		if(instagram.buscarOnlineInsta){
 			if(instagram.usarCacheInsta){
-				console.log(`[fetchPostsInstagramByTag] '${tag}' não está no cache, buscando...`);
+				console.log(`\t[fetchPostsInstagramByTag] '${tag}' não está no cache, buscando...`);
 			} else {
-				console.log(`[fetchPostsInstagramByTag] Ignorado cache.`);
+				console.log(`\t[fetchPostsInstagramByTag] Ignorado cache.`);
 			}
 			// Busca dado online
 			const response = fetch(url, {
@@ -64,7 +64,7 @@ function fetchPostsInstagramByTag(tag) {
 				console.warn(`[fetchPostsInstagramByTag] Erro na busca online`);
 			}
 		} else {
-			console.log(`[fetchPostsInstagramByTag] Ignorado busca online.`)
+			console.log(`\t[fetchPostsInstagramByTag] Ignorado busca online.`)
 			return [];
 		}
 	} catch (error) {

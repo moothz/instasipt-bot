@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "blob": "^0.1.0",
+    "Blob": "^0.10.0",
+    "form-data": "^4.0.0",
     "read-excel-file": "^5.6.1",
     "sync-exec": "^0.6.2",
     "sync-fetch": "^0.4.2",

@@ -1,3 +1,4 @@
+const FormData = require('form-data');
 const fetch = require('sync-fetch');
 const path = require('path');
 const fs = require('fs');
@@ -5,6 +6,14 @@ const fs = require('fs');
 const configs = JSON.parse(fs.readFileSync("configs.json", "utf8"));
 const telegram = configs.telegram;
 let offsetAtual = telegram.offset;
+
+function parseResultado(func, msg, resultado){
+	if(resultado.ok){
+		console.log(`\t[telegram][${func}] Mensagem enviada com sucesso`);
+	} else {
+		console.error(`\t[telegram][${func}] Erro enviando mensagem:\n'${msg}'\n`, resultado);
+	}
+}
 
 function sendMessage(msg, replyId, chatId){
 	const payload = JSON.stringify({
@@ -14,13 +23,15 @@ function sendMessage(msg, replyId, chatId){
 		parse_mode: "HTML"
 	});
 
-	return fetch(`https://api.telegram.org/bot${telegram.token}/sendMessage`,{
+	const resultado = fetch(`https://api.telegram.org/bot${telegram.token}/sendMessage`,{
 		body: payload,
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' }
 	}).json(); 
+	parseResultado("sendMessage",msg,resultado);
 }
 
+/* WIP: não dá pra usar fetch aqui */
 function sendPhotoLocal(msg, filePath, replyId, chatId) {
 	const photoStream = fs.createReadStream(filePath);
 	let photoBuffer = Buffer.alloc(0);
@@ -31,21 +42,24 @@ function sendPhotoLocal(msg, filePath, replyId, chatId) {
 
 	photoStream.on('end', function() {
 		const formData = new FormData();
-		const photoBlob = new Blob([photoBuffer], { type: 'image/jpeg' });
+		const photoBufferView = new Uint8Array(photoBuffer);
+		const photoBufferBuffer = Buffer.from(photoBufferView);
 
 		formData.append('chat_id', chatId);
 		formData.append('caption', msg);
 		formData.append('reply_to_message_id', replyId);
 		formData.append('parse_mode', 'HTML');
-		formData.append('photo', photoBlob, path.basename(filePath));
+		formData.append('photo', photoBufferBuffer, { filename: path.basename(filePath) });
 
-		return fetch(`https://api.telegram.org/bot${telegram.token}/sendPhoto`, {
+		const resultado = fetch(`https://api.telegram.org/bot${telegram.token}/sendPhoto`, {
 			method: 'POST',
 			body: formData
 		}).json();
+		parseResultado("sendPhotoLocal",msg,resultado);
 	});
 }
 
+/* WIP: não dá pra usar fetch aqui */
 function sendPhotosLocal(msg, filePaths, replyId, chatId) {
 	console.log("sendPhotosLocal", msg, filePaths, replyId, chatId);
 	const payload = {
@@ -63,7 +77,7 @@ function sendPhotosLocal(msg, filePaths, replyId, chatId) {
 		}
 	});
 
-	return fetch(`https://api.telegram.org/bot${telegram.token}/sendMediaGroup`, {
+	const resultado = fetch(`https://api.telegram.org/bot${telegram.token}/sendMediaGroup`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'multipart/form-data'
@@ -73,6 +87,7 @@ function sendPhotosLocal(msg, filePaths, replyId, chatId) {
 			media: JSON.stringify(photos)
 		}
 	}).json();
+	parseResultado("sendPhotosLocal",msg,resultado);
 }
 
 function sendPhoto(msg, imageUrl, replyId, chatId){
@@ -84,11 +99,12 @@ function sendPhoto(msg, imageUrl, replyId, chatId){
 		parse_mode: "HTML"
 	});
 
-	return fetch(`https://api.telegram.org/bot${telegram.token}/sendPhoto`,{
+	const resultado = fetch(`https://api.telegram.org/bot${telegram.token}/sendPhoto`,{
 		body: payload,
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' }
 	}).json(); 
+	parseResultado("sendPhoto", msg, resultado);
 }
 
 function sendPhotos(msg, imageUrls, replyId, chatId) {
@@ -106,7 +122,7 @@ function sendPhotos(msg, imageUrls, replyId, chatId) {
 		}
 	});
 
-	return fetch(`https://api.telegram.org/bot${telegram.token}/sendMediaGroup`, {
+	const resultado = fetch(`https://api.telegram.org/bot${telegram.token}/sendMediaGroup`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'multipart/form-data'
@@ -116,6 +132,7 @@ function sendPhotos(msg, imageUrls, replyId, chatId) {
 			media: JSON.stringify(photos)
 		}
 	}).json();
+	parseResultado("sendPhotos", msg, resultado);
 }
 
 async function savePhotoFromTelegram(file_id) {
@@ -134,10 +151,10 @@ async function savePhotoFromTelegram(file_id) {
 		const fileWriter = await fs.createWriteStream(filePath);
 		await fileData.body.pipe(fileWriter);
 
-		console.log(`[savePhotoFromTelegram] Arquivo salvo em: ${filePath}`);
+		console.log(`\t[savePhotoFromTelegram] Arquivo salvo em: ${filePath}`);
 		return filePath;
 	} catch (error) {
-		console.error(`[savePhotoFromTelegram] Erro salvando arquivo: ${error}`);
+		console.error(`\t[savePhotoFromTelegram] Erro salvando arquivo: ${error}`);
 		return false;
 	}
 }
@@ -155,7 +172,7 @@ function getMessages() {
 				try{
 					fs.writeFileSync("configs.json", JSON.stringify(configs, null, 2));
 				} catch(e){
-					console.log(`[getMessages] Erro atualiazndo arquivo 'configs.json': `,e);
+					console.log(`\t[getMessages] Erro atualiazndo arquivo 'configs.json': `,e);
 				}
 			}
 
@@ -170,12 +187,12 @@ function getMessages() {
 				}
 				if(imageFileId && configs.alpr){
 					const arquivoImg = await savePhotoFromTelegram(imageFileId);
-					console.log(`[getMessages] Imagem recebida, buscando placa no arquivo '${arquivoImg}'`);
+					console.log(`\t[getMessages] Imagem recebida, buscando placa no arquivo '${arquivoImg}'`);
 					await new Promise(r => setTimeout(r, 2000));
 					const resultadoALPR = execALPR(arquivoImg);
 					const placas = getPlacasFromTexto(resultadoALPR);
 					placasNaImg = placas.join(", ");
-					console.log(`[getMessages] Encontradas: ${placasNaImg}`);
+					console.log(`\t[getMessages] Encontradas: ${placasNaImg}`);
 				}
 
 				msgs.push({

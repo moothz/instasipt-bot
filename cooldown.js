@@ -5,8 +5,8 @@ function setCooldown(idUsuario, whitelist){
 		const tsAtual = new Date().getTime();
 		const usuario = getCooldown(idUsuario);
 		usuario.ultimaMsg = tsAtual;
-	} else {
-		console.log(`[setCooldown] ${idUsuario} está na whitelist.`);
+	}else {
+		console.log(`\t[setCooldown] ${idUsuario} está na whitelist.`);
 	}
 }
 
@@ -15,10 +15,10 @@ function isOnCooldown(idUsuario, tempoCooldown){
 	const usuario = getCooldown(idUsuario);
 	const delay = (tsAtual - usuario.ultimaMsg);
 	if(delay < tempoCooldown){
-		console.log(`[isOnCooldown] ${idUsuario}: ${delay}`);
+		console.log(`\t[isOnCooldown] ${idUsuario}: ${delay}`);
 		return true;
 	} else {
-		console.log(`[notOnCooldown] ${idUsuario}: ${delay}`);
+		console.log(`\t[notOnCooldown] ${idUsuario}: ${delay}`);
 		return false;
 	}
 }
