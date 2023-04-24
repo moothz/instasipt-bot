@@ -104,7 +104,7 @@ function sendPhoto(msg, imageUrl, replyId, chatId){
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' }
 	}).json(); 
-	parseResultado("sendPhoto", msg, resultado);
+	parseResultado("sendPhoto", `${msg}\nURL: ${imageUrl}`, resultado);
 }
 
 function sendPhotos(msg, imageUrls, replyId, chatId) {
@@ -132,7 +132,7 @@ function sendPhotos(msg, imageUrls, replyId, chatId) {
 			media: JSON.stringify(photos)
 		}
 	}).json();
-	parseResultado("sendPhotos", msg, resultado);
+	parseResultado("sendPhotos", `${msg}\nURLs: ${imageUrls.join(", ")}`, resultado);
 }
 
 async function savePhotoFromTelegram(file_id) {

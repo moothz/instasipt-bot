@@ -43,18 +43,25 @@ async function main(){
 								if(resultadoExcel){
 									if(resultadoExcel.status.toLowerCase().includes("nada")){
 										console.log(`\t[${placa.toUpperCase()}] Encontrada no excel: Nada consta.`);
-										textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n✅ <b>Nada consta.</b>\n`;
+										textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor}\n✅ <b>Nada consta.</b>\n`;
 									} else {
 										console.log(`\t[${placa.toUpperCase()}] Encontrada no excel: ${resultadoExcel.status}.`);
-										textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor} \n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
+										textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor}\n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
 									}
 								}
 
 								if(resultadosInstagram.length > 0){
 									console.log(`\t[${placa.toUpperCase()}] Encontrada no instagram.`);
 									const res = resultadosInstagram[0];
-									const textoResposta = `${headerResposta}\n\n${res.text}\n\n${textoExcel}\n<i>👍 ${res.likes} 💬 ${res.comments}\n🌐 <a href='${res.link}'>Link do post</a></i>`;
-									sendPhoto(textoResposta, res.image, msg.id, msg.chatId);
+									if(textoExcel.length == 0){
+										// Pra não ficar vazio
+										textoExcel = `ℹ️ ${res.text}\n🚨 <b>Atenção</b>: Consta <i>Sinistro</i>`;
+									}
+									const textoResposta = `${headerResposta}\n\n${textoExcel}\n\n\t<i>👍 ${res.likes} 💬 ${res.comments}\n\t📸 <a href='${res.link}'>Link do post</a></i>`;
+
+									/* As URL em cache param de funcionar quando a conta do insta scraper toma ban */
+									//sendPhoto(textoResposta, res.image, msg.id, msg.chatId);
+									sendMessage(textoResposta, msg.id, msg.chatId);
 									nadaEncontrado = false;
 								} else 
 								if(resultadoExcel){
