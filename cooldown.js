@@ -1,5 +1,16 @@
 const cooldown = [];
 
+
+function generateHash(str) {
+	let hash = 5381;
+
+	for (let i = 0; i < str.length; i++) {
+		hash = (hash * 33) ^ str.charCodeAt(i);
+	}
+
+	return hash >>> 0; // Convert the signed integer to an unsigned integer
+}
+
 function setCooldown(idUsuario, whitelist){
 	if(!whitelist.includes(idUsuario)){
 		const tsAtual = new Date().getTime();
@@ -35,4 +46,4 @@ function getCooldown(idUsuario){
 	}
 }
 
-module.exports = { setCooldown, isOnCooldown };
+module.exports = { setCooldown, isOnCooldown, generateHash, generateHash };

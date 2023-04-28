@@ -1,11 +1,81 @@
+const express = require('express');
 const fs = require('fs');
 
-const { setCooldown, isOnCooldown } = require("./cooldown.js");
+const { setCooldown, isOnCooldown, generateHash } = require("./cooldown.js");
 const { getMessages, sendMessage, sendPhotoLocal, sendPhotosLocal, sendPhoto, sendPhotos, savePhotoFromTelegram } = require("./telegram.js");
 const { findFilesStartingWith, execALPR, getDadosFromExcel, getPlacasFromTexto } = require("./utils.js");
 const { fetchPostsInstagramByTag } = require("./instagram.js");
 
 const configs = JSON.parse(fs.readFileSync("configs.json", "utf8"));
+
+const apiSiPT = express();
+apiSiPT.use(express.json());
+apiSiPT.post('/getInfoPlaca', async function (req, res) {
+	console.log("[api-sipt] getInfoPlaca: ");
+	let dadosMsg = JSON.stringify(req.headers,null,"\t")+"\n"+JSON.stringify(req.body,null,"\t");
+	console.log(dadosMsg);
+
+	const headerSec = req.headers["x-sipt-token"] ?? false;
+	if(headerSec === "amODw0GI5FMFLnYaZAoeCSmdDCP5HqF9"){
+		const busca = req.body.placa ?? false;
+		const usuario = req.body.usuario ?? false;
+		const userHash = generateHash(usuario);
+		if(busca && usuario){
+			let textoRetorno = "?";
+			if(isOnCooldown(userHash, configs.tempoCooldown)){
+				textoRetorno = `🛑 <b>Atenção</b>: É necessário aguardar <i>${configs.tempoCooldown/1000}s</i> entre consultas.`;
+			} else {
+				console.log(`[api-sipt] ${usuario}: ${busca}`);
+				const placas = getPlacasFromTexto(busca);
+				if(placas.length > 0){
+					const placa = placas[0];
+					const resultadoExcel = await getDadosFromExcel(placa);
+					const resultadosInstagram = fetchPostsInstagramByTag(`sipt${placa}`);
+
+					const headerResposta = `🔎 <b>Resultado da placa <i>${placa.toUpperCase()}</i></b>`;
+
+					let textoExcel = "";
+					if(resultadoExcel){
+						if(resultadoExcel.status.toLowerCase().includes("nada")){
+							console.log(`\t[${placa.toUpperCase()}] Encontrada no excel: Nada consta.`);
+							textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor}\n✅ <b>Nada consta.</b>\n`;
+						} else {
+							console.log(`\t[${placa.toUpperCase()}] Encontrada no excel: ${resultadoExcel.status}.`);
+							textoExcel = `ℹ️ ${resultadoExcel.ano} / ${resultadoExcel.cor}\n🚨 <b>Atenção</b>: Consta <i>${resultadoExcel.status}</i>.\n`;
+						}
+					}
+
+					if(resultadosInstagram.length > 0){
+						console.log(`\t[${placa.toUpperCase()}] Encontrada no instagram.`);
+						const res = resultadosInstagram[0];
+						if(textoExcel.length == 0){
+							// Pra não ficar vazio
+							textoExcel = `ℹ️ ${res.text}\n🚨 <b>Atenção</b>: Consta <i>Sinistro</i>`;
+						}
+
+						textoRetorno = `${headerResposta}\n\n${textoExcel}\n\n\t<i>👍 ${res.likes} 💬 ${res.comments}\n\t📸 <a href='${res.link}'>Link do post</a></i>`;
+					} else 
+					if(resultadoExcel){
+						// Se não achou post no insta, pega as info do excel somente
+						textoRetorno = `${headerResposta}\n\n${textoExcel}`;					
+					}
+				}
+			}
+
+			let codStatus = 0;
+			if(textoRetorno.length > 10){
+				codStatus = 1;
+				setCooldown(userHash, configs.whitelistCooldown);
+			} 
+			res.send(JSON.stringify({status: codStatus, "resultado": textoRetorno}));
+		}
+      	
+	} else {
+		res.send(JSON.stringify({status: 0, "resultado": ""}));
+	}
+});
+
+apiSiPT.listen(2000);
 
 async function main(){
 	const msgs = getMessages();

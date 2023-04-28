@@ -13,7 +13,7 @@ Um arquivo `dados.xlsx` pode ser lido também que contém mais informações sob
     >Acesse o site oficial do [nodejs](https://nodejs.org/), baixe e instale a versão LTS.
 2. Instale os pacotes necessários
 ```
-npm i sync-exec sync-fetch read-excel-file form-data
+npm i sync-exec sync-fetch read-excel-file form-data express
 ```
 
 ## ⚙️ configs.json
